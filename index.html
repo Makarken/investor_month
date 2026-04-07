@@ -133,7 +133,7 @@ tfoot td:nth-child(n+3){text-align:right}
 <div id="root"></div>
 <button class="print-bar" id="printBtn" onclick="window.print()" style="display:none">📄 Сохранить PDF</button>
 <script>
-const SCRIPT_URL='PASTE_INVESTOR_APPS_SCRIPT_URL';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw1Ml5--BIwVavq0u1Y9xsg0QVBhWR2Kiq5NiEX5Siv3CqXKDFlbvLgwzN6nSS4HE-inA/exec';
 const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 function getParams(){const p=new URLSearchParams(window.location.search),now=new Date();let m=parseInt(p.get('month'))||now.getMonth()+1,y=parseInt(p.get('year'))||now.getFullYear();return{month:Math.max(1,Math.min(12,m)),year:y}}
 function fmt(n){return Number(n).toFixed(2).replace('.',',')}
