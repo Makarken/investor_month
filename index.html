@@ -74,6 +74,10 @@ tfoot td:nth-child(n+3){text-align:right}
 .month-nav{display:flex;align-items:center;gap:8px;margin-bottom:28px;justify-content:center;flex-wrap:wrap}
 .nav-btn{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:7px 14px;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;color:var(--ink2)}
 .nav-month{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink)}
+.toggle-wrap{display:flex;gap:0;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.toggle-btn{background:var(--paper2);border:none;padding:7px 12px;font-family:'Jost',sans-serif;font-size:11px;cursor:pointer;color:var(--ink3);transition:all .15s}
+.toggle-btn.active{background:var(--ink);color:var(--paper)}
+.toggle-btn:first-child{border-right:1px solid var(--line)}
 .month-select{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--ink2);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a837c'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
 .month-select:focus{border-color:var(--gold)}
 .state{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px}
@@ -133,7 +137,7 @@ tfoot td:nth-child(n+3){text-align:right}
 <div id="root"></div>
 <button class="print-bar" id="printBtn" onclick="window.print()" style="display:none">📄 Сохранить PDF</button>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbw1Ml5--BIwVavq0u1Y9xsg0QVBhWR2Kiq5NiEX5Siv3CqXKDFlbvLgwzN6nSS4HE-inA/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwXnpnsIHBe6oiJgwp_HOLgZd2_diPUNpjVpIRROohLOnICs4jZhglW4Q5UJXz2att8oQ/exec';
 const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 function getParams(){const p=new URLSearchParams(window.location.search),now=new Date();let m=parseInt(p.get('month'))||now.getMonth()+1,y=parseInt(p.get('year'))||now.getFullYear();return{month:Math.max(1,Math.min(12,m)),year:y}}
 function fmt(n){return Number(n).toFixed(2).replace('.',',')}
@@ -148,10 +152,14 @@ function render(data,month,year){
       <span class="nav-month">${MN[month-1]} ${year}</span>
       <button class="nav-btn" onclick="navigate(1)">→</button>
       <select class="month-select" onchange="selectMonth(this.value)" id="monthSel">${MN.map((n,i)=>'<option value="'+(i+1)+'"'+(i+1===month?' selected':'')+'>'+n+' '+year+'</option>').join('')}</select>
+      <div class="toggle-wrap">
+        <button class="toggle-btn ${curFilter==='all'?'active':''}" onclick="setFilter('all')">Все</button>
+        <button class="toggle-btn ${curFilter==='paid'?'active':''}" onclick="setFilter('paid')">Оплачено</button>
+      </div>
     </div>
     <div class="rh fu">
       <div class="rh-title" style="text-align:center">Сводка за<br><em>${MN[month-1]}</em></div>
-      <div class="rh-meta" style="justify-content:center;margin-top:10px"><span><strong>${MN[month-1]}</strong> ${year}</span><span>Позиций: <strong>${sales.length}</strong></span><span>Все продажи месяца</span><span>Дата: <strong>${new Date().toLocaleDateString('ru-RU')}</strong></span></div>
+      <div class="rh-meta" style="justify-content:center;margin-top:10px"><span><strong>${MN[month-1]}</strong> ${year}</span><span>Позиций: <strong>${sales.length}</strong></span><span>${curFilter==='paid'?'Только оплаченные':'Все продажи месяца'}</span><span>Дата: <strong>${new Date().toLocaleDateString('ru-RU')}</strong></span></div>
     </div>
     <div class="kpi-row fu">
       <div class="kpi"><div class="kpi-label">Продано</div><div class="kpi-value">${sales.length}</div><div class="kpi-sub">позиций</div></div>
@@ -203,14 +211,15 @@ function demo(m,y){
   const dm={};s.forEach(i=>{const d=parseInt(i.date);dm[d]=(dm[d]||0)+i.profit});
   return{sales:s,totalRevenue:tR,totalCost:tC,totalProfit:tP,avgMarkup:(tP/tC)*100,dailyData:Object.entries(dm).map(([d,p])=>({day:parseInt(d),profit:p})).sort((a,b)=>a.day-b.day)};
 }
-let CM,CY;
+let CM,CY,curFilter='all';
+function setFilter(f){curFilter=f;load(CM,CY);}
 async function load(m,y){
   CM=m;CY=y;
   document.getElementById('printBtn').style.display='none';
   document.getElementById('root').innerHTML='<div class="state"><div class="loader"></div><div class="state-title">Загрузка сводки</div><div class="state-sub">'+MN[m-1]+' '+y+'</div></div>';
   try{
     if(SCRIPT_URL.includes('PASTE')){await new Promise(r=>setTimeout(r,600));render(demo(m,y),m,y);return;}
-    const res=await fetch(SCRIPT_URL+'?action=report&month='+m+'&year='+y);
+    const res=await fetch(SCRIPT_URL+'?action=report&month='+m+'&year='+y+'&filter='+curFilter);
     const data=await res.json();
     if(data.error)throw new Error(data.error);
     if(!data.sales||!data.sales.length){document.getElementById('root').innerHTML='<div class="page"><div class="month-nav"><button class="nav-btn" onclick="navigate(-1)">←</button><span class="nav-month">'+MN[m-1]+' '+y+'</span><button class="nav-btn" onclick="navigate(1)">→</button><select class="month-select" onchange="selectMonth(this.value)">'+ MN.map((n,i)=>'<option value="'+(i+1)+'"'+(i+1===m?" selected":"")+'>'+n+' '+y+'</option>').join('') +'</select></div><div class="state" style="min-height:40vh"><div class="state-title">Нет данных</div><div class="state-sub">За '+MN[m-1]+' '+y+' продаж со статусом «Деньги зашли» не найдено</div></div></div>';return;}
