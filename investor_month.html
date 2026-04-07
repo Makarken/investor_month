@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сводка за месяц — База с Инвестором</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1a1714;--ink2:#4a4540;--ink3:#8a837c;--ink4:#c0b9b2;--paper:#faf8f5;--paper2:#f2ede6;--paper3:#e8e0d5;--gold:#9a7c4a;--gold2:#c4a060;--gold-bg:#f5edd9;--green:#3a7a5a;--green-bg:#e8f3ec;--red:#8a3a3a;--red-bg:#f3e8e8;--line:#ddd5ca}
+body{background:var(--paper);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;font-size:13px;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:680px;margin:0 auto;padding:32px 16px 60px}
+.rh{border-bottom:2px solid var(--ink);padding-bottom:28px;margin-bottom:36px;position:relative}
+.rh-eye{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:8px}
+.rh-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:.95;letter-spacing:-1px}
+.rh-title em{font-style:italic;color:var(--gold2)}
+.rh-meta{margin-top:14px;display:flex;gap:24px;font-size:11px;color:var(--ink3);flex-wrap:wrap}
+.rh-meta span strong{color:var(--ink);font-weight:500}
+.rh-orn{position:absolute;right:0;top:0;font-family:'Cormorant Garamond',serif;font-size:120px;font-weight:300;color:var(--paper3);line-height:1;user-select:none}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:2px;margin-bottom:36px;overflow:hidden}
+.kpi{background:var(--paper);padding:18px 16px}
+.kpi-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);font-weight:500;margin-bottom:6px}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--ink);line-height:1}
+.kpi-value.gold{color:var(--gold)}.kpi-value.green{color:var(--green)}
+.kpi-sub{font-size:10px;color:var(--ink3);margin-top:3px}
+.sec{margin-bottom:36px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500}
+.sec-line{flex:1;height:1px;background:var(--line)}
+.sec-num{font-size:10px;color:var(--ink4);letter-spacing:1px}
+.chart-wrap{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:20px 16px 12px}
+.chart-area{height:120px;display:flex;align-items:flex-end;gap:3px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:1px 1px 0 0;min-height:2px}
+.bar.p{background:var(--gold2)}.bar.l{background:var(--red);opacity:.7}
+.bar-lbl{font-size:8px;color:var(--ink3);text-align:center}
+.chart-leg{display:flex;gap:16px;margin-top:10px;justify-content:flex-end}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink3)}
+.leg-dot{width:8px;height:8px;border-radius:1px}
+.tbl-wrap{border:1px solid var(--line);border-radius:2px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--ink)}
+thead th{padding:10px 12px;text-align:left;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--paper2);font-weight:500}
+thead th:nth-child(n+3){text-align:right}
+tbody tr{border-bottom:1px solid var(--line)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:nth-child(even){background:var(--paper2)}
+tbody td{padding:10px 12px;font-size:12px;color:var(--ink2)}
+tbody td:nth-child(n+3){text-align:right}
+.td-num{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--ink)}
+.pos{color:var(--green);font-weight:500}.neg{color:var(--red);font-weight:500}
+.mkp{font-size:11px;padding:2px 6px;border-radius:2px;display:inline-block}
+.mkp.pos{background:var(--green-bg);color:var(--green)}.mkp.neg{background:var(--red-bg);color:var(--red)}
+tfoot tr{background:var(--gold-bg)}
+tfoot td{padding:11px 12px;font-weight:500;font-size:12px;color:var(--gold);border-top:2px solid var(--gold2)}
+tfoot td:nth-child(n+3){text-align:right}
+.tf-lbl{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:500}
+.payout{background:var(--ink);border-radius:2px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.pb-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:6px}
+.pb-val{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--gold2);line-height:1}
+.pb-sub{font-size:11px;color:#555;margin-top:4px}
+.pb-div{width:1px;height:60px;background:#333;flex-shrink:0}
+.pb-left{display:flex;flex-direction:column;justify-content:center}
+.pb-right{display:flex;flex-direction:column;justify-content:center}
+.pb-partners{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.pb-partner{display:flex;justify-content:space-between;width:160px;border-bottom:1px solid #2a2a2a;padding-bottom:5px}
+.pb-partner:last-child{border-bottom:none}
+.pb-partner{font-size:11px;color:#666;display:flex;gap:16px}
+.pb-partner span:last-child{color:var(--gold2);font-weight:500;text-align:right}
+.rfoot{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.rf-l{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--ink4);font-style:italic}
+.rf-r{font-size:10px;color:var(--ink4)}
+.print-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);border:none;border-radius:30px;padding:14px 32px;font-family:'Jost',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,.25);z-index:100}
+.month-nav{display:flex;align-items:center;gap:8px;margin-bottom:28px;justify-content:center;flex-wrap:wrap}
+.nav-btn{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:7px 14px;font-family:'Jost',sans-serif;font-size:12px;cursor:pointer;color:var(--ink2)}
+.nav-month{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink)}
+.month-select{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--ink2);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a837c'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.month-select:focus{border-color:var(--gold)}
+.state{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px}
+.loader{width:28px;height:28px;border:2px solid var(--line);border-top-color:var(--gold2);border-radius:50%;animation:spin .8s linear infinite}
+.state-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--ink2)}
+.state-sub{font-size:12px;color:var(--ink3);text-align:center}
+@media(max-width:480px){.kpi-row{grid-template-columns:repeat(2,1fr)}.rh-title{font-size:36px}.rh-orn{font-size:80px}.pb-val{font-size:32px}.payout{flex-direction:column;gap:16px}.pb-div{width:60px;height:1px}.pb-partners{align-items:flex-start}}
+@page{size:A4 portrait;margin:6mm;margin-bottom:4mm}
+@media print{
+  .print-bar,.month-nav{display:none!important}
+  body{background:white;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html{height:auto}
+  a[href]:after{content:none!important}
+  .page::after{content:none!important}
+  .page{padding:2px 6px 4px;max-width:100%}
+  .rh{padding-bottom:6px;margin-bottom:10px;border-bottom-width:1px}
+  .rh-title{font-size:22px;line-height:1}
+  .rh-orn{display:none}
+  .rh-meta{margin-top:4px;gap:10px;font-size:8px}
+  .kpi-row{margin-bottom:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .kpi{padding:6px 8px}
+  .kpi-value{font-size:16px}
+  .kpi-label{font-size:7px}
+  .kpi-sub{font-size:8px;margin-top:1px}
+  .sec{margin-bottom:10px;page-break-inside:avoid}
+  .sec-head{margin-bottom:6px}
+  .sec-title{font-size:13px}
+  .chart-wrap{padding:6px 8px 4px}
+  .chart-area{height:50px}
+  .chart-leg{margin-top:3px;font-size:8px}
+  .leg-dot{width:6px;height:6px}
+  .tbl-wrap{overflow:visible;page-break-inside:avoid}
+  thead tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  thead th{padding:4px 6px;font-size:7px}
+  tbody td{padding:4px 6px;font-size:9px}
+  tfoot tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tfoot td{padding:4px 6px;font-size:9px}
+  .td-num{font-size:12px}
+  .mkp{padding:1px 4px;font-size:9px}
+  .payout{padding:8px 12px;gap:10px;background:#1a1714!important;page-break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pb-val{font-size:20px}
+  .pb-label{font-size:7px}
+  .pb-sub{font-size:8px;margin-top:1px}
+  .pb-partners{gap:2px}
+  .pb-partner{font-size:8px;gap:6px}
+  .pb-div{height:30px}
+  .rfoot{margin-top:6px;padding-top:6px}
+  .rf-l{font-size:10px}
+  .rf-r{font-size:7px}
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fu .45s ease both}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<button class="print-bar" id="printBtn" onclick="window.print()" style="display:none">📄 Сохранить PDF</button>
+<script>
+const SCRIPT_URL='PASTE_INVESTOR_APPS_SCRIPT_URL';
+const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function getParams(){const p=new URLSearchParams(window.location.search),now=new Date();let m=parseInt(p.get('month'))||now.getMonth()+1,y=parseInt(p.get('year'))||now.getFullYear();return{month:Math.max(1,Math.min(12,m)),year:y}}
+function fmt(n){return Number(n).toFixed(2).replace('.',',')}
+function fmtI(n){return Math.round(n).toLocaleString('ru-RU')}
+function chart(dd){if(!dd||!dd.length)return'<div style="height:120px;display:flex;align-items:center;justify-content:center;color:var(--ink4);font-size:12px">Нет данных</div>';const mx=Math.max(...dd.map(d=>Math.abs(d.profit)),1);return'<div class="chart-area">'+dd.map(d=>'<div class="bar-col"><div class="bar '+(d.profit>=0?'p':'l')+'" style="height:'+Math.abs(d.profit)/mx*100+'%"></div><div class="bar-lbl">'+d.day+'</div></div>').join('')+'</div>'}
+function render(data,month,year){
+  const{sales,totalRevenue,totalCost,totalProfit,avgMarkup,dailyData}=data,payout=totalProfit/3;
+  const rows=sales.map(s=>'<tr><td class="td-num">'+s.num+'</td><td style="color:var(--ink3);font-size:11px">'+s.date+'</td><td>'+fmt(s.cost)+'€</td><td>'+fmt(s.sale)+'€</td><td class="'+(s.profit>=0?'pos':'neg')+'">'+(s.profit>=0?'+':'')+fmt(s.profit)+'€</td><td><span class="mkp '+(s.profit>=0?'pos':'neg')+'">'+fmt(s.markup)+'%</span></td></tr>').join('');
+  document.getElementById('root').innerHTML=`<div class="page">
+    <div class="month-nav">
+      <button class="nav-btn" onclick="navigate(-1)">←</button>
+      <span class="nav-month">${MN[month-1]} ${year}</span>
+      <button class="nav-btn" onclick="navigate(1)">→</button>
+      <select class="month-select" onchange="selectMonth(this.value)" id="monthSel">${MN.map((n,i)=>'<option value="'+(i+1)+'"'+(i+1===month?' selected':'')+'>'+n+' '+year+'</option>').join('')}</select>
+    </div>
+    <div class="rh fu">
+      <div class="rh-title" style="text-align:center">Сводка за<br><em>${MN[month-1]}</em></div>
+      <div class="rh-meta" style="justify-content:center;margin-top:10px"><span><strong>${MN[month-1]}</strong> ${year}</span><span>Позиций: <strong>${sales.length}</strong></span><span>Все продажи месяца</span><span>Дата: <strong>${new Date().toLocaleDateString('ru-RU')}</strong></span></div>
+    </div>
+    <div class="kpi-row fu">
+      <div class="kpi"><div class="kpi-label">Продано</div><div class="kpi-value">${sales.length}</div><div class="kpi-sub">позиций</div></div>
+      <div class="kpi"><div class="kpi-label">Выручка</div><div class="kpi-value gold">${fmtI(totalRevenue)}€</div><div class="kpi-sub">сумма продаж</div></div>
+      <div class="kpi"><div class="kpi-label">Прибыль</div><div class="kpi-value green">${fmtI(totalProfit)}€</div><div class="kpi-sub">чистая</div></div>
+      <div class="kpi"><div class="kpi-label">Наценка</div><div class="kpi-value">${fmt(avgMarkup)}%</div><div class="kpi-sub">средняя</div></div>
+    </div>
+    <div class="sec fu">
+      <div class="sec-head"><div class="sec-title">Прибыль по дням</div><div class="sec-line"></div><div class="sec-num">01</div></div>
+      <div class="chart-wrap">${chart(dailyData)}<div class="chart-leg"><div class="leg-item"><div class="leg-dot" style="background:var(--gold2)"></div>Прибыль</div><div class="leg-item"><div class="leg-dot" style="background:var(--red);opacity:.7"></div>Убыток</div></div></div>
+    </div>
+    <div class="sec fu">
+      <div class="sec-head"><div class="sec-title">Детализация продаж</div><div class="sec-line"></div><div class="sec-num">02</div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>№</th><th>Дата</th><th>Себест.</th><th>Продажа</th><th>Прибыль</th><th>Накрутка</th></tr></thead>
+        <tbody>${rows||'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--ink3)">Нет продаж за этот месяц</td></tr>'}</tbody>
+        <tfoot><tr><td colspan="2" class="tf-lbl">Итого</td><td>${fmt(totalCost)}€</td><td>${fmt(totalRevenue)}€</td><td class="pos">+${fmt(totalProfit)}€</td><td></td></tr></tfoot>
+      </table></div>
+    </div>
+    <div class="sec fu">
+      <div class="sec-head"><div class="sec-title">Вывод прибыли</div><div class="sec-line"></div><div class="sec-num">03</div></div>
+      <div class="payout">
+        <div class="pb-left">
+          <div class="pb-label">Каждому партнёру</div>
+          <div class="pb-val">${fmt(payout)}€</div>
+          <div class="pb-sub">из ${fmt(totalProfit)}€ общей прибыли</div>
+        </div>
+        <div class="pb-div"></div>
+        <div class="pb-right">
+          <div class="pb-label">Партнёры</div>
+          <div class="pb-partners">
+            <div class="pb-partner"><span>Инвестор</span><span>${fmt(payout)}€</span></div>
+            <div class="pb-partner"><span>Макар</span><span>${fmt(payout)}€</span></div>
+            <div class="pb-partner"><span>Влад</span><span>${fmt(payout)}€</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rfoot fu">
+      <div class="rf-l">База с Инвестором · ${MN[month-1]} ${year}</div>
+      <div class="rf-r">Сформировано автоматически</div>
+    </div>
+  </div>`;
+  document.getElementById('printBtn').style.display='flex';
+}
+function demo(m,y){
+  const s=[{num:'81',date:'05.0'+m+'.'+y,cost:98.5,sale:220,profit:121.5,markup:123.35},{num:'82',date:'08.0'+m+'.'+y,cost:143.2,sale:280,profit:136.8,markup:95.53},{num:'83',date:'12.0'+m+'.'+y,cost:67,sale:110,profit:43,markup:64.18},{num:'84',date:'18.0'+m+'.'+y,cost:210.4,sale:390,profit:179.6,markup:85.36},{num:'85',date:'22.0'+m+'.'+y,cost:124.7,sale:226.92,profit:102.22,markup:81.97}];
+  const tR=s.reduce((a,i)=>a+i.sale,0),tC=s.reduce((a,i)=>a+i.cost,0),tP=s.reduce((a,i)=>a+i.profit,0);
+  const dm={};s.forEach(i=>{const d=parseInt(i.date);dm[d]=(dm[d]||0)+i.profit});
+  return{sales:s,totalRevenue:tR,totalCost:tC,totalProfit:tP,avgMarkup:(tP/tC)*100,dailyData:Object.entries(dm).map(([d,p])=>({day:parseInt(d),profit:p})).sort((a,b)=>a.day-b.day)};
+}
+let CM,CY;
+async function load(m,y){
+  CM=m;CY=y;
+  document.getElementById('printBtn').style.display='none';
+  document.getElementById('root').innerHTML='<div class="state"><div class="loader"></div><div class="state-title">Загрузка сводки</div><div class="state-sub">'+MN[m-1]+' '+y+'</div></div>';
+  try{
+    if(SCRIPT_URL.includes('PASTE')){await new Promise(r=>setTimeout(r,600));render(demo(m,y),m,y);return;}
+    const res=await fetch(SCRIPT_URL+'?action=report&month='+m+'&year='+y);
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    if(!data.sales||!data.sales.length){document.getElementById('root').innerHTML='<div class="page"><div class="month-nav"><button class="nav-btn" onclick="navigate(-1)">←</button><span class="nav-month">'+MN[m-1]+' '+y+'</span><button class="nav-btn" onclick="navigate(1)">→</button><select class="month-select" onchange="selectMonth(this.value)">'+ MN.map((n,i)=>'<option value="'+(i+1)+'"'+(i+1===m?" selected":"")+'>'+n+' '+y+'</option>').join('') +'</select></div><div class="state" style="min-height:40vh"><div class="state-title">Нет данных</div><div class="state-sub">За '+MN[m-1]+' '+y+' продаж со статусом «Деньги зашли» не найдено</div></div></div>';return;}
+    render(data,m,y);
+  }catch(e){document.getElementById('root').innerHTML='<div class="state"><div class="state-title">Ошибка</div><div class="state-sub">'+e.message+'</div></div>';}
+}
+function selectMonth(val){load(parseInt(val),CY);}
+function navigate(d){let m=CM+d,y=CY;if(m<1){m=12;y--;}if(m>12){m=1;y++;}load(m,y);}
+const{month,year}=getParams();load(month,year);
+</script>
+</body>
+</html>
